@@ -5,10 +5,203 @@ package org.example;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.*; // ...added for collection helpers...
 
 public class AppTest {
     @Test public void emptyExampleTest(){
         App classUnderTest = new App();
         assertNotNull(classUnderTest);
+    }
+
+    // Tests for App.add (existing + edge cases)
+    @Test public void add_positiveNumbers() {
+        assertEquals("2 + 3 should be 5", 5, App.add(2, 3));
+        assertEquals("100 + 200 should be 300", 300, App.add(100, 200));
+    }
+    @Test public void add_negativeNumbers() {
+        assertEquals("-2 + -3 should be -5", -5, App.add(-2, -3));
+        assertEquals("5 + -3 should be 2", 2, App.add(5, -3));
+    }
+    @Test public void add_withZero() {
+        assertEquals("7 + 0 should be 7", 7, App.add(7, 0));
+        assertEquals("0 + 0 should be 0", 0, App.add(0, 0));
+    }
+    @Test public void add_commutative() {
+        int a = 123, b = -45;
+        assertEquals("Addition should be commutative", App.add(a, b), App.add(b, a));
+    }
+    @Test public void add_overflowWrapsAsInt() {
+        assertEquals("MAX + 1 wraps to MIN", Integer.MIN_VALUE, App.add(Integer.MAX_VALUE, 1));
+    }
+    // Edge cases for add
+    @Test public void add_overflow_negativeWrap() {
+        // MIN + -1 wraps to MAX
+        assertEquals("MIN + -1 should wrap to MAX", Integer.MAX_VALUE, App.add(Integer.MIN_VALUE, -1));
+    }
+    @Test public void add_minPlusZero() {
+        assertEquals("MIN + 0 stays MIN", Integer.MIN_VALUE, App.add(Integer.MIN_VALUE, 0));
+    }
+    @Test public void add_largeSameNumbers_overflow() {
+        // MAX + MAX overflows to -2
+        assertEquals("MAX + MAX overflows to -2", -2, App.add(Integer.MAX_VALUE, Integer.MAX_VALUE));
+    }
+
+    // isPrime edge cases
+    @Test public void isPrime_smallPrimesAndNonPrimes() {
+        assertFalse("Negative numbers are not prime", App.isPrime(-5));
+        assertFalse("0 is not prime", App.isPrime(0));
+        assertFalse("1 is not prime", App.isPrime(1));
+        assertTrue("2 is prime", App.isPrime(2));
+        assertTrue("3 is prime", App.isPrime(3));
+        assertFalse("4 is not prime", App.isPrime(4));
+        int largePrime = 104729; 
+        assertTrue("Known large prime should be detected", App.isPrime(largePrime));
+    }
+
+
+    
+
+    // reverse edge cases
+    @Test public void reverse_edgeCases() {
+        assertEquals("Empty stays empty", "", App.reverse(""));
+        assertEquals("Single char stays same", "a", App.reverse("a"));
+        assertEquals("Unicode preserved order", "a😊", App.reverse("😊a"));
+        assertEquals("Palindrome unchanged when reversed", "madam", App.reverse("madam"));
+        assertEquals("Numbers reversed", "54321", App.reverse("12345"));
+        assertEquals("Symbols reversed", "$#@!", App.reverse("!@#$"));
+    }
+
+    // factorial edge cases
+    @Test public void factorial_baseAndNegative() {
+        assertEquals("0! is 1", 1, App.factorial(0));
+        assertEquals("1! is 1", 1, App.factorial(1));
+        try {
+            App.factorial(-1);
+            fail("factorial(-1) should throw IllegalArgumentException");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        assertEquals("12! fits in int", 479001600, App.factorial(12));
+        assertEquals("5! is 120", 120, App.factorial(5));
+        assertEquals("6! is 720", 720, App.factorial(6));
+        assertEquals("10! is 3628800", 3628800, App.factorial(10));
+    }
+
+
+    // isPalindrome edge cases
+    @Test public void isPalindrome_edgeCases() {
+        assertTrue("Empty string is palindrome", App.isPalindrome(""));
+        assertTrue("Case-insensitive palindrome", App.isPalindrome("RaceCar"));
+        assertTrue("Ignore punctuation and spaces", App.isPalindrome("A man, a plan, a canal: Panama"));
+        assertFalse("Non-palindromic string", App.isPalindrome("hello"));
+        // Numeric edge cases
+        assertTrue("Numeric palindrome", App.isPalindrome("12321"));
+        assertTrue("Numeric with spaces/punctuation treated as palindrome", App.isPalindrome("12 3,21"));
+        assertTrue("Single digit numeric is palindrome", App.isPalindrome("7"));
+        assertFalse("Numeric non-palindrome", App.isPalindrome("12345"));
+    }
+
+    // fibonacciUpTo edge cases
+    @Test public void fibonacciUpTo_edgeCases() {
+        assertEquals("n=0 -> [0]", Arrays.asList(0), App.fibonacciUpTo(0));
+        assertEquals("n=1 -> [0,1,1] (method's behavior)", Arrays.asList(0,1,1), App.fibonacciUpTo(1));
+        assertEquals("n=2 -> [0,1,1,2]", Arrays.asList(0,1,1,2), App.fibonacciUpTo(2));
+        try {
+            App.fibonacciUpTo(-1);
+            fail("fibonacciUpTo(-1) should throw IllegalArgumentException");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+    }
+
+    // Additional fibonacciUpTo tests
+    @Test public void fibonacciUpTo_exactFibonacciLimit() {
+        assertEquals("n=13 includes 13", Arrays.asList(0,1,1,2,3,5,8,13), App.fibonacciUpTo(13));
+    }
+
+    @Test public void fibonacciUpTo_betweenFibonacciNumbers() {
+        // 14 is between 13 and 21, result should be same as for 13
+        assertEquals("n=14 includes up to 13", Arrays.asList(0,1,1,2,3,5,8,13), App.fibonacciUpTo(14));
+    }
+
+    @Test public void fibonacciUpTo_largeLimit_returnsLargestFibBelowOrEqual() {
+        List<Integer> seq = App.fibonacciUpTo(100);
+        assertFalse("sequence should not be empty for n=100", seq.isEmpty());
+        assertEquals("largest Fibonacci <= 100 is 89", Integer.valueOf(89), seq.get(seq.size() - 1));
+    }
+
+    // charFrequency edge cases
+    @Test public void charFrequency_edgeCases() {
+        assertTrue("Empty input -> empty map", App.charFrequency("").isEmpty());
+        Map<Character,Integer> m = App.charFrequency("aAa ");
+        assertEquals("count of 'a' should be 2", Integer.valueOf(2), m.get('a'));
+        assertEquals("count of 'A' should be 1", Integer.valueOf(1), m.get('A'));
+        assertEquals("space counted", Integer.valueOf(1), m.get(' '));
+    }
+
+    // isAnagram edge cases
+    @Test public void isAnagram_edgeCases() {
+        assertTrue("Empty strings are anagrams", App.isAnagram("", ""));
+        assertTrue("Case and spaces ignored", App.isAnagram("Listen", "Silent"));
+        assertTrue("Spaces ignored", App.isAnagram("a b", "b a"));
+        assertFalse("Different letters not anagrams", App.isAnagram("abc", "abx"));
+    }
+
+    // average edge cases
+    @Test public void average_edgeCases() {
+        assertEquals("Single element average", 5.0, App.average(new int[]{5}), 0.0);
+        assertEquals("Negatives handled", -2.5, App.average(new int[]{-1, -4}), 0.0);
+        try {
+            App.average(new int[]{});
+            fail("average(empty) should throw IllegalArgumentException");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+    }
+
+    // filterEvens edge cases
+    @Test public void filterEvens_edgeCases() {
+        assertEquals("Empty list -> empty", Collections.emptyList(), App.filterEvens(Collections.emptyList()));
+        assertEquals("No evens -> empty", Collections.emptyList(), App.filterEvens(Arrays.asList(1,3,5)));
+        assertEquals("Negative evens included", Arrays.asList(-4,0,2), App.filterEvens(Arrays.asList(-4,0,2,3)));
+        assertEquals("All evens returned", Arrays.asList(2,4,6), App.filterEvens(Arrays.asList(2,4,6)));
+    }
+
+    // mostCommonWord edge cases
+    @Test public void mostCommonWord_edgeCases() {
+        assertEquals("basic repeated word", "hello", App.mostCommonWord("Hello hello world"));
+        assertEquals("punctuation and case ignored", "apple", App.mostCommonWord("Apple, apple! apple."));
+        assertEquals("single word returns itself", "uniq", App.mostCommonWord("uniq"));
+        // empty string behavior: method lowers and splits, may return empty string
+        assertEquals("empty input -> empty key", "", App.mostCommonWord(""));
+    }
+
+    // ...existing reflection-based String-returning method test...
+    @Test public void firstNoArgStringMethod_returnsNonEmptyString() throws Exception {
+        Method target = findFirstNoArgStringMethod(App.class);
+        assertNotNull("No suitable no-arg String-returning method found on App", target);
+
+        if (!Modifier.isPublic(target.getModifiers())) {
+            target.setAccessible(true);
+        }
+        Object instance = Modifier.isStatic(target.getModifiers()) ? null : App.class.getDeclaredConstructor().newInstance();
+
+        Object result = target.invoke(instance);
+        assertTrue("Method " + target.getName() + " should return a non-null String", result instanceof String);
+        String str = (String) result;
+        assertFalse("Method " + target.getName() + " returned an empty String", str.isEmpty());
+    }
+
+    private Method findFirstNoArgStringMethod(Class<?> clazz) {
+        for (Method m : clazz.getDeclaredMethods()) {
+            if (m.getParameterCount() == 0 &&
+                m.getReturnType() == String.class &&
+                !"main".equals(m.getName())) {
+                return m;
+            }
+        }
+        return null;
     }
 }
