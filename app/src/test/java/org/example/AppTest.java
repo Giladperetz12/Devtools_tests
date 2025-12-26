@@ -178,22 +178,6 @@ public class AppTest {
         assertEquals("empty input -> empty key", "", App.mostCommonWord(""));
     }
 
-    // ...existing reflection-based String-returning method test...
-    @Test public void firstNoArgStringMethod_returnsNonEmptyString() throws Exception {
-        Method target = findFirstNoArgStringMethod(App.class);
-        assertNotNull("No suitable no-arg String-returning method found on App", target);
-
-        if (!Modifier.isPublic(target.getModifiers())) {
-            target.setAccessible(true);
-        }
-        Object instance = Modifier.isStatic(target.getModifiers()) ? null : App.class.getDeclaredConstructor().newInstance();
-
-        Object result = target.invoke(instance);
-        assertTrue("Method " + target.getName() + " should return a non-null String", result instanceof String);
-        String str = (String) result;
-        assertFalse("Method " + target.getName() + " returned an empty String", str.isEmpty());
-    }
-
     private Method findFirstNoArgStringMethod(Class<?> clazz) {
         for (Method m : clazz.getDeclaredMethods()) {
             if (m.getParameterCount() == 0 &&

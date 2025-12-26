@@ -8,6 +8,10 @@ import java.util.*;
  * string manipulations, and data processing.
  */
 public class App {
+    
+    public static void main(String[] args) {
+        System.out.println("App is running");
+    }
 
     /**
      * Adds two integers.
