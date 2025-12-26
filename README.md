@@ -48,27 +48,9 @@ Where to find results
 - Add --info or --stacktrace for more console detail:
   .\gradlew.bat :app:test --stacktrace --info
 
-Troubleshooting (quick)
------------------------
-- Java version: Use a supported JDK (Java 11 or 17 recommended). Check:
-  java -version
-
-- If Gradle fails with version/compatibility errors, set JAVA_HOME to a compatible JDK and retry:
-  (PowerShell) $env:JAVA_HOME = 'C:\Program Files\Java\jdk-11.x'
-  .\gradlew.bat --stop
-  .\gradlew.bat clean :app:test --stacktrace --info
-
-- If the wrapper or cache seems corrupted:
-  .\gradlew.bat --stop
-  rm -r .gradle
-  .\gradlew.bat clean :app:test --refresh-dependencies --stacktrace --info
-
 Contributing
 ------------
 - Add unit tests for new functions or edge cases.
 - Keep tests small, readable, and deterministic.
 - Open a pull request with a short description of your change.
 
-License
--------
-- This project is a sample/training repository. Add a license file if you intend to reuse or publish it.
