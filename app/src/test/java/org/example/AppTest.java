@@ -138,7 +138,7 @@ public class AppTest {
         Map<Character,Integer> m = App.charFrequency("aAa ");
         assertEquals("count of 'a' should be 2", Integer.valueOf(2), m.get('a'));
         assertEquals("count of 'A' should be 1", Integer.valueOf(1), m.get('A'));
-        assertEquals("space counted", Integer.valueOf(1), m.get(' '));
+        assertEquals("space counted expected 1 as result", Integer.valueOf(1), m.get(' '));
     }
 
     // isAnagram edge cases
