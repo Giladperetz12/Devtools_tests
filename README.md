@@ -1,12 +1,13 @@
 # Unit Testing Assignment — Dream Team
 
-A small collection of Java utility functions with a focused JUnit test suite.
-Used to demonstrate writing clear unit tests and handling edge cases.
-
-Team
+# Team
 - Gilad Peretz — implemented/tested: add, isPrime, reverse  
 - Yuval Ganot — implemented/tested: factorial, isPalindrome, fibonacciUpTo  
 - Shared: charFrequency, isAnagram, average, filterEvens, mostCommonWord, etc.
+
+# Descrioption 
+A small collection of Java utility functions with a focused JUnit test suite.
+Used to demonstrate writing clear unit tests and handling edge cases.
 
 Quick start (clone → run)
 1. Clone:
